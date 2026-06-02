@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook - My Notes</title>
+    <style>
+        /* --- PROFESSIONAL THEME COLORS --- */
+        :root {
+            --primary: #f59e0b; /* Amber/Gold from your image */
+            --primary-hover: #d97706;
+            --bg-light: #fffcf9;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+        body { 
+            background-color: var(--bg-light); 
+            background-image: linear-gradient(rgba(255, 252, 249, 0.9), rgba(255, 252, 249, 0.9)), 
+                              url('notes_idx_img.jpg'); /* Your background image */
+            background-size: cover;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+
+        .search-bar { flex: 0 1 400px; }
+        .search-bar input {
+            width: 100%; padding: 10px 18px; border: 1px solid #d1d5db;
+            border-radius: 25px; outline: none; transition: 0.2s;
+        }
+        .search-bar input:focus { border-color: var(--primary); }
+
+        .nav-actions { display: flex; gap: 12px; }
+
+        /* Match profile button style */
+        .nav-btn {
+            padding: 10px 22px; border-radius: 8px; font-size: 0.95rem;
+            font-weight: 600; cursor: pointer; text-decoration: none;
+            transition: 0.2s; display: inline-flex; align-items: center;
+            height: 42px; border: 1px solid transparent;
+        }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-add:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .btn-profile { background: white; color: var(--text-dark); border: 1px solid #d1d5db; }
+        .btn-profile:hover { background: #f9fafb; }
+
+        /* --- NOTES GRID --- */
+        .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .notes-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .note-card {
+            background: white; border-radius: 12px; padding: 20px;
+            position: relative; border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: 0.2s; min-height: 180px; display: flex; flex-direction: column;
+        }
+        .note-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+
+        .note-title { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-dark); }
+        .note-content { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; flex-grow: 1; }
+        .note-footer { margin-top: 15px; font-size: 0.8rem; color: #9ca3af; }
+
+        /* --- 3-DOTS MENU --- */
+        .menu-container { position: absolute; top: 15px; right: 10px; }
+        .menu-dots { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9ca3af; }
+        .dropdown-menu {
+            position: absolute; right: 0; background: white; border: 1px solid #eee;
+            border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none; z-index: 10; width: 100px;
+        }
+        .dropdown-menu.active { display: block; }
+        .dropdown-item {
+            width: 100%; padding: 10px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 0.9rem;
+        }
+        .dropdown-item:hover { background: #fff9eb; color: var(--primary); }
+        .delete-item { color: #ef4444; }
+
+        /* --- MODAL POPUP --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; width: 450px; }
+        .modal-input, .modal-textarea {
+            width: 100%; margin-bottom: 15px; padding: 12px;
+            border: 1px solid #d1d5db; border-radius: 8px; outline: none;
+        }
+        .modal-textarea { height: 120px; resize: none; }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">Notebook</div>
+        <div class="search-bar"><input type="text" id="search-input" placeholder="Search notes..."></div>
+        <div class="nav-actions">
+            <button class="nav-btn btn-add" id="open-modal-btn">Add Note</button>
+            <a href="profile_notes.html" class="nav-btn btn-profile">Profile</a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="notes-grid" id="notes-container">
+            </div>
+    </main>
+
+    <div class="modal-overlay" id="note-modal">
+        <div class="modal-box">
+            <h3>New Note</h3>
+            <form id="note-form">
+                <input type="text" id="note-title-input" class="modal-input" placeholder="Title" required>
+                <textarea id="note-content-input" class="modal-textarea" placeholder="Content..." required></textarea>
+                <div class="modal-buttons">
+                    <button type="button" id="close-modal-btn" style="background:none; border:none; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-save">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        let editingCard = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const openModalBtn = document.getElementById('open-modal-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const noteModal = document.getElementById('note-modal');
+            const noteForm = document.getElementById('note-form');
+            const notesContainer = document.getElementById('notes-container');
+            const searchInput = document.getElementById('search-input');
+            const email = localStorage.getItem("loggedInEmail");
+            
+
+            // --- 1. OPEN MODAL ---
+            openModalBtn.addEventListener('click', () => {
+                noteModal.classList.add('active');
+            });
+
+            // --- 2. CLOSE MODAL ---
+            closeModalBtn.addEventListener('click', () => {
+                noteModal.classList.remove('active');
+                noteForm.reset();
+            });
+
+            // --- 3. CREATE NOTE ---
+noteForm.addEventListener('submit', (e) => {
+
+    e.preventDefault();
+
+    const title = document.getElementById('note-title-input').value;
+    const content = document.getElementById('note-content-input').value;
+    const date = new Date().toLocaleDateString();
+
+    // IF EDITING EXISTING NOTE
+    if (editingCard) {
+
+        const noteId = editingCard.dataset.id;
+
+    fetch(`http://localhost:5001/notes/${noteId}`, {
+
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            title,
+            content,
+            date,
+            email
+        })
+
+    })
+
+    .then(res => res.json())
+
+    .then(updatedNote => {
+
+        editingCard.querySelector('.note-title').innerText =
+            updatedNote.title;
+
+        editingCard.querySelector('.note-content').innerText =
+            updatedNote.content;
+
+        editingCard.querySelector('.note-footer').innerText =
+            updatedNote.date;
+
+        editingCard = null;
+
+        noteModal.classList.remove('active');
+
+        noteForm.reset();
+
+    });
+
+
+        return;
+    }
+
+    // CREATE NEW NOTE
+    fetch("http://localhost:5001/notes", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            title,
+            content,
+            date,
+            email
+        })
+
+    })
+
+    .then(res => res.json())
+
+    .then(note => {
+
+        addNoteToUI(
+            note.title,
+            note.content,
+            note.date,
+            note._id
+        );
+
+        noteModal.classList.remove('active');
+
+        noteForm.reset();
+
+    })
+
+    .catch(err => console.log(err));
+
+});
+
+            function addNoteToUI(title, content, date,id) {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                card.dataset.id = id;
+                card.innerHTML = `
+                    <div class="menu-container">
+                        <button class="menu-dots" onclick="toggleMenu(event)">&#8942;</button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" onclick="editNote(this)">Edit</button>
+                            <button class="dropdown-item delete-item" onclick="deleteNote(this)">Delete</button>
+                        </div>
+                    </div>
+                    <h3 class="note-title">${title}</h3>
+                    <p class="note-content">${content}</p>
+                    <div class="note-footer">${date}</div>
+                `;
+                notesContainer.prepend(card);
+            }
+
+
+            // --- LOAD NOTES FROM DATABASE ---
+function loadNotes() {
+
+    const email = localStorage.getItem("loggedInEmail");
+
+fetch(`http://localhost:5001/notes/${email}`)
+    .then(res => res.json())
+
+    .then(notes => {
+
+        notesContainer.innerHTML = "";
+
+        notes.forEach(note => {
+
+            addNoteToUI(
+                note.title,
+                note.content,
+                note.date,
+                note._id
+            );
+
+        });
+
+    })
+
+    .catch(err => console.log(err));
+
+}
+
+            // --- 4. SEARCH ---
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.note-card').forEach(card => {
+                    const text = card.innerText.toLowerCase();
+                    card.style.display = text.includes(term) ? 'flex' : 'none';
+                });
+            });
+            loadNotes();
+        });
+
+        // --- GLOBAL FUNCTIONS (Needed for onclick) ---
+        function toggleMenu(e) {
+            e.stopPropagation();
+            const menu = e.target.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => m !== menu && m.classList.remove('active'));
+            menu.classList.toggle('active');
+        }
+
+        function deleteNote(btn) {
+
+    if (!confirm("Delete this note?")) return;
+
+    const card = btn.closest('.note-card');
+
+    const noteId = card.dataset.id;
+
+    fetch(`http://localhost:5001/notes/${noteId}`, {
+
+        method: "DELETE"
+
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        card.remove();
+
+    })
+
+    .catch(err => console.log(err));
+
+}
+
+        function editNote(btn) {
+
+    const card = btn.closest('.note-card');
+
+    editingCard = card;
+
+    document.getElementById('note-title-input').value =
+        card.querySelector('.note-title').innerText;
+
+    document.getElementById('note-content-input').value =
+        card.querySelector('.note-content').innerText;
+
+    document.getElementById('note-modal').classList.add('active');
+
+    }
+
+        window.onclick = () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active'));
+    </script>
+</body>
+</html>

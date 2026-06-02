@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Notebook</title>
+    <style>
+
+
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            /* Fixed Background: Gradient + Image */
+            background-image: linear-gradient(rgba(255, 252, 249, 0.85), rgba(255, 252, 249, 0.85)), 
+                              url('notes_idx_img.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .profile-card { 
+            /* Frosted glass effect */
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px);
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            text-align: center; 
+            width: 350px; 
+            border-top: 6px solid #f59e0b; /* Professional Golden Accent */
+        }
+
+        .avatar { 
+            width: 100px; 
+            height: 100px; 
+            background: #fef3c7; 
+            border-radius: 50%; 
+            margin: 0 auto 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2.5rem; 
+            color: #f59e0b; 
+            font-weight: bold;
+            border: 4px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 { margin: 10px 0; color: #1f2937; font-size: 1.5rem; }
+        p { color: #6b7280; margin-bottom: 30px; font-size: 0.95rem; }
+
+        .back-btn { 
+            display: inline-block; 
+            text-decoration: none; 
+            background: #f59e0b; 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            transition: all 0.3s ease; 
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn:hover { 
+            background: #d97706; 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        hr { border: 0; border-top: 1px solid #e5e7eb; margin: 25px 0; }
+    </style>
+</head>
+
+<script>
+
+    const email = localStorage.getItem("loggedInEmail");
+
+    fetch(`http://localhost:5001/profile/${email}`)
+
+    .then(res => res.json())
+
+    .then(user => {
+
+        document.getElementById("username").innerText = user.username;
+
+        document.getElementById("email").innerText = user.email;
+
+        document.getElementById("avatar").innerText =
+            user.username.charAt(0).toUpperCase();
+
+    })
+
+    .catch(err => console.log(err));
+
+</script>
+
+<body>
+
+    <div class="profile-card">
+        <div class="avatar" id="avatar">U</div>
+        <h2 id="username">User Name</h2>
+        <p id="email">user@example.com</p>
+        
+        <hr>
+        
+        <a href="Dashboard_notes.html" class="back-btn">Back to Notes</a>
+    </div>
+
+</body>
+</html>

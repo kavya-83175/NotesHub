@@ -121,6 +121,7 @@
         <div class="nav-actions">
             <button class="nav-btn btn-add" id="open-modal-btn">Add Note</button>
             <a href="profile_notes.html" class="nav-btn btn-profile">Profile</a>
+            <button class="nav-btn btn-profile" id="logout-btn">Logout</button>
         </div>
     </nav>
 
@@ -154,7 +155,22 @@
             const noteForm = document.getElementById('note-form');
             const notesContainer = document.getElementById('notes-container');
             const searchInput = document.getElementById('search-input');
+            const logoutBtn = document.getElementById('logout-btn');
             const email = localStorage.getItem("loggedInEmail");
+
+            //logout button
+        logoutBtn.addEventListener('click', () => {
+
+            localStorage.removeItem("loggedInEmail");
+
+            window.location.href = "Index_notes.html";
+
+            });
+            
+            if (!email) {
+                window.location.href = "Index_notes.html";
+            }
+
             
 
             // --- 1. OPEN MODAL ---
@@ -322,6 +338,8 @@ fetch(`http://localhost:5001/notes/${email}`)
             });
             loadNotes();
         });
+
+        
 
         // --- GLOBAL FUNCTIONS (Needed for onclick) ---
         function toggleMenu(e) {

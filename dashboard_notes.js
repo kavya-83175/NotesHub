@@ -5,20 +5,6 @@ const closeModalBtn = document.getElementById('close-modal-btn');
 const noteForm = document.getElementById('note-form');
 const notesContainer = document.getElementById('notes-container');
 const searchInput = document.getElementById('search-input');
-const logoutBtn = document.getElementById('logout-btn');
-const email = localStorage.getItem("loggedInEmail");
-
-logoutBtn.addEventListener('click', () => {
-
-    localStorage.removeItem("loggedInEmail");
-
-    window.location.href = "Index_notes.html";
-
-});
-
-if (!email) {
-    window.location.href = "Index_notes.html";
-    }
 
 // --- Modal Logic ---
 openModalBtn.addEventListener('click', () => {
@@ -48,8 +34,7 @@ noteForm.addEventListener('submit', (e) => {
     body: JSON.stringify({
         title,
         content,
-        date,
-        email
+        date
     })
 })
 .then(res => res.json())
@@ -114,6 +99,7 @@ function editNote(button) {
     document.getElementById('note-title-input').value = title;
     document.getElementById('note-content-input').value = content;
     
+    card.remove(); // Remove old card; it will be replaced on Save
     noteModal.classList.add('active');
 }
 
@@ -141,27 +127,19 @@ window.addEventListener('click', () => {
 
 // --- Fetch and Display Existing Notes on Page Load ---
 function loadNotesFromDatabase() {
-
-    const email = localStorage.getItem("loggedInEmail");
-
-    fetch(`http://localhost:5001/notes/${email}`)
+    fetch("http://localhost:5001/notes")
         .then(res => res.json())
         .then(notesArray => {
-
-            notesContainer.innerHTML = "";
-
+            // Clear current container to avoid duplicates
+            notesContainer.innerHTML = ""; 
+            
+            // Loop through your Atlas data and build cards for them
             notesArray.forEach(note => {
-
-                createNoteCard(
-                    note.title,
-                    note.content,
-                    note.date
-                );
-
+                createNoteCard(note.title, note.content, note.date);
             });
-
         })
-        .catch(err => console.log(err));
+        .catch(err => console.error("Error loading notes from history:", err));
 }
+
 // Call this function instantly when the script runs
 loadNotesFromDatabase();

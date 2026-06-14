@@ -81,6 +81,10 @@
 
     const email = localStorage.getItem("loggedInEmail");
 
+    if (!email) {
+    window.location.href = "Index_notes.html";
+    }
+
     fetch(`http://localhost:5001/profile/${email}`)
 
     .then(res => res.json())

@@ -6,6 +6,7 @@ Features:
 - Edit Notes
 - Delete Notes
 - User-specific Dashboard
+- Logout Option
 - MongoDB Storage
 
 Tech Stack:
